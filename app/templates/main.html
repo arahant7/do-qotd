@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8" />
+  <meta name=viewport content="width=device-width, initial-scale=1">
+  <title>QOTD</title>
+  <link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/unsemantic/1.1.3/unsemantic-grid-responsive.css" />
+  <link href="/static/main.css" rel="stylesheet" type="text/css" />
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/sizzle/2.3.3/sizzle.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/underscore.js/1.8.3/underscore-min.js"></script>
+</head>
+
+<body>
+  <div class="grid-container" style="max-width:900px">
+    {% include 'header.html.tmpl' %}
+   
+    <!-- THE QUESTION -->
+    <div class="grid-50">
+      <span style="font-size: 1.2em;">
+        <span style="border-bottom: 5px solid #d70000;">QUESTION OF THE DAY</span>
+      </span>
+    </div>
+    <div class="grid-50">
+      <div class="hide-on-mobile" style="float:right; font-size:0.8em;">Ends in {{human_friendly_time(data.q.end_ts)}}</div>
+      <div class="hide-on-desktop" style="margin-top:12px; font-size:0.8em;">Ends in {{human_friendly_time(data.q.end_ts)}}</div>
+    </div>
+
+    <div class="do-sub-section-clear">&nbsp;</div>
+
+    <div class="grid-100 grid-parent" style="background-color:white; padding: 0.5em; font-size:1.2em; font-weight:500;">
+
+      <!-- This span comes before the question so as to mae it float to top-right instead of bottom-right -->
+      <span style="width: 80px; height: 80px; background: #0F9D58; border-radius: 40px; display: table; float:right;">
+        <span style="display:table-cell; vertical-align:middle; text-align: center; color:white;">
+	      <span>{{ data.q.nv }}</span>
+	      <small>votes</small>
+	    </span>
+      </span>
+
+      <span>{{ data.q.question|e }}</span>
+
+    </div>
+    <div class="do-sub-section-clear">&nbsp;</div>
+
+
+    <!-- THE ANSWERS -->
+    <div class="grid-100">
+      <span>Your vote:</span>
+    </div><!-- Options -->
+    <div class="do-item-clear">&nbsp;</div>
+
+    {% for a in data.a %}
+    <div class="grid-100 do-options-outer valign-center-outer" id="div_answer_{{a.answer_id}}">
+      <!-- Options -->
+      <div class="grid-5 mobile-grid-10 grid-parent valign-center-inner">
+	    <input class="do-options-radio" name="answer" value="{{ a.answer_id }}" type="radio" />
+        <input type="hidden" name="url" value="/polls/{{a.poll_id}}/vote/{{a.answer_id}}"/>
+      </div>
+      <div class="grid-75 mobile-grid-70 grid-parent">
+	    <span class="do-options-radio-text">{{ a.answer|e }}</span>
+      </div>
+      <div class="grid-20 mobile-grid-20 grid-parent" id="div_answer_{{a.answer_id}}_circle">
+      </div>
+    </div>
+    <div class="do-item-clear">&nbsp;</div>
+    {% endfor %}
+
+    <script type="text/template" id="tmpl_vote_result_circle">
+        <span class="circle-result-outer" style="border-color: <%= color %>;">
+            <span class="circle-result-inner"><%= answer_net_votes %></span>
+        </span>
+    </script>
+
+    <div class="do-sub-section-clear">&nbsp;</div>
+
+    <!--REFERENCES-->
+    <div class="grid-100" style="font-size: 1.2em;">
+      <a href="questions/{{data.q.question_id}}/references" class="do-internal-header-hyperlink" style="border-bottom: 5px solid #FF9800;">REFERENCES</span>
+      <a href="questions/{{data.q.question_id}}/references/create" class="do-internal-hyperlink" style="float:right;">add</a>
+    </div>
+    <div class="do-sub-section-clear">&nbsp;</div>
+
+    {% for r in data.r %}
+    {% include 'reference.html.tmpl' %}
+    {% endfor %}
+
+    <div class="do-sub-section-clear">&nbsp;</div>
+    
+    <!--DISCUSSION-->
+    <div class="grid-100" style="font-size: 1.2em;">
+      <a href="questions/{{data.q.question_id}}/comments" class="do-internal-header-hyperlink" style="border-bottom: 5px solid #2897B7;">DISCUSSION</span>
+      <a href="questions/{{data.q.question_id}}/comments/create" class="do-internal-hyperlink" style="float:right;">post</a>
+    </div>
+    <div class="do-sub-section-clear">&nbsp;</div>
+
+    {% for c in data.c %}
+    {% include 'comment.html.tmpl' %}
+    {% endfor %}
+
+    <div class="do-sub-section-clear">&nbsp;</div>
+
+    <!--QUESTIONS FOR TOMORROW-->
+    <div class="grid-100" style="font-size: 1.2em;">
+      <a href="/questions/tomorrow" class="do-internal-header-hyperlink" style="border-bottom: 5px solid #FFE920;">QUESTIONS FOR TOMORROW</a>
+      <a href="questions/create" class="do-internal-hyperlink" style="float:right;">ask</a>
+    </div>
+    <div class="do-sub-section-clear">&nbsp;</div>
+    
+    {% for qft in data.qft %}
+    {% include 'qft.html.tmpl' %}
+    {% endfor %}
+
+  </div>
+  <div class='toast' style='display:none'></div>
+
+<script>
+(function() {
+    var PASTEL_CODES = ["#FFEAEA", "#E7F3F1", "#F1F1D6", "#F3E7E7", "#F9F9DD", "#FFE6D0", "#E3FBE9", "#FAFBDF"];
+    
+    //updownvote buttons
+	_.each(Sizzle(".up-down-vote .triangle-base"), function(elem) {
+		elem.addEventListener('click', function() {
+            var url = Sizzle("input[name='url']", elem)[0].value;
+            var xhr = new XMLHttpRequest();
+            xhr.onreadystatechange = function(e) {
+                if (xhr.readyState !== XMLHttpRequest.DONE) return;
+                if (xhr.status !== 200) {
+                    //TODO - show error toast
+                    console.log(xhr.responseText);
+                    return;
+                }
+                
+                var jsonRes = JSON.parse(xhr.responseText)
+
+                //Set net vote
+                Sizzle(".updownvote-value", elem.parentNode)[0].innerHTML = jsonRes.net_vote;
+
+                //Set color for votes
+                setUpDownVoteColor(elem);
+            };
+            xhr.open('POST', url);
+            xhr.send();            
+		});
+	});
+
+    //answer radio
+    _.each(Sizzle("input[name='answer']"), function(elem) {
+        elem.addEventListener('click', function() {
+            var url = Sizzle("input[name='url']", elem.parentNode)[0].value;
+            var xhr = new XMLHttpRequest();
+            xhr.onreadystatechange = function(e) {
+                if (xhr.readyState !== XMLHttpRequest.DONE) return;
+                if (xhr.status !== 200) {
+                    //TODO - show error toast
+                    console.log(xhr.responseText);
+                    return;
+                }
+                
+                var ansVotes = JSON.parse(xhr.responseText)
+                showVotes(ansVotes);
+            };
+            xhr.open('POST', url);
+            xhr.send();
+        });
+    });
+
+    var setUpDownVoteColor = function(elem) {
+        //Clear color of both triangles
+        _.each(Sizzle(".triangle-base", elem.parentNode), function(elem2) {
+            elem2.style['border-bottom-color'] = "grey";
+            elem2.style['border-top-color'] = "grey";
+        });
+        //Set color of user's vote
+        var color = Sizzle("input[name='color']", elem)[0].value;
+        elem.style['border-bottom-color'] = color;
+        elem.style['border-top-color'] = color;
+        //That was dirty! 
+    };
+
+    var showVotes = function(ansVotes) {
+        var totalVotes = _.reduce(ansVotes, function(memo, ans){
+            return memo + ans.answer_net_votes;
+        }, 0);
+
+        //Show percentage votes for each answer
+        var colors = _.shuffle(PASTEL_CODES);
+        _.each(Sizzle("input[name='answer']"), function(elem, index) {
+            var ans = _.find(ansVotes, function(ansV){
+                return ansV.answer_id == elem.value;
+            });
+            if (ans === undefined) return; //This is a continue! Now that's not cool.
+
+            ans.pct = Math.floor(ans.answer_net_votes * 100.0 / totalVotes);
+            ans.color = colors[index%colors.length];
+            bg = String.format("linear-gradient(90deg, {0} {1}%, #FFFFFF {1}%)", ans.color, ans.pct);
+            //Show background
+            Sizzle(String.format("#div_answer_{0}", ans.answer_id))[0].style.background = bg;
+            
+            //Show the circle with the number of votes
+            var tmpl = Sizzle("#tmpl_vote_result_circle")[0].innerHTML;
+            var circleHtml = _.template(tmpl)(ans);
+            Sizzle(String.format("#div_answer_{0}_circle", ans.answer_id))[0].innerHTML = circleHtml;
+            if (ans.has_user_voted) {
+                elem.checked = true;
+            }
+        });
+    };
+
+    String.format = function(format) {
+        var args = Array.prototype.slice.call(arguments, 1);
+        return format.replace(/{(\d+)}/g, function(match, number) { 
+            return typeof args[number] != 'undefined'
+                ? args[number] 
+                : match
+            ;
+        });
+    };
+
+    {% for r in data.r %}
+    {% if r.net_vote_user > 0 %}
+    setUpDownVoteColor(Sizzle(String.format("#div_reference_{0} .triangle-up", {{r.reference_id}}))[0]);
+    {% endif %}
+    {% if r.net_vote_user < 0 %}
+    setUpDownVoteColor(Sizzle(String.format("#div_reference_{0} .triangle-down", {{r.reference_id}}))[0]);
+    {% endif %}
+    {% endfor %}
+
+    {% for c in data.c %}
+    {% if c.net_vote_user > 0 %}
+    setUpDownVoteColor(Sizzle(String.format("#div_comment_{0} .triangle-up", {{c.comment_id}}))[0]);
+    {% endif %}
+    {% if c.net_vote_user < 0 %}
+    setUpDownVoteColor(Sizzle(String.format("#div_comment_{0} .triangle-down", {{c.comment_id}}))[0]);
+    {% endif %}
+    {% endfor %}
+
+    {% for qft in data.qft %}
+    {% if qft.net_vote_user > 0 %}
+    setUpDownVoteColor(Sizzle(String.format("#div_question_{0} .triangle-up", {{qft.question_id}}))[0]);
+    {% endif %}
+    {% if qft.net_vote_user < 0 %}
+    setUpDownVoteColor(Sizzle(String.format("#div_question_{0} .triangle-down", {{qft.question_id}}))[0]);
+    {% endif %}
+    {% endfor %}
+
+    showVotes( {{json_dumps(data.av)|safe}} );
+
+
+})();
+</script>
+
+</body>
+</html>

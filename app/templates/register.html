@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <title>Register</title>
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/unsemantic/1.1.3/unsemantic-grid-responsive.css" rel="stylesheet" type="text/css">
+  <link href="static/main.css" rel="stylesheet" type="text/css">
+
+</head>
+<body style="font-family: Helvetica Neue, Helvetica, Arial; background-color:#FAFAFA;">
+  <div class="grid-container" style="max-width:900px">
+    <div class="grid-100 grid-parent do-section-clear" style="line-height:3em;">
+      <span style="color:grey;font-size: 2.5em;"><b>democracy</b>.online</span>
+    </div>
+
+
+    <div class="grid-100">
+      <span style="font-size: 1.2em;"><span style="border-bottom: 5px solid #2897B7;">REGISTER</span></span>
+    </div>
+
+    <div class="do-sub-section-clear">&nbsp;</div>
+
+    <form method="POST">
+    <div class="grid-100">
+
+      {% include 'errors.html.tmpl' %}
+
+      <div class="grid-100 grid-parent">
+        <input class="do-input" name="username" type="text" placeholder="Username" {% if form %}value="{{form.username.data}}"{% endif %}></input>
+      </div>
+      <div class="do-item-clear">&nbsp;</div>
+      <div class="grid-100 grid-parent">
+        <input class="do-input" name="password" type="password" placeholder="Password"></input>
+      </div>      
+      <div class="do-item-clear">&nbsp;</div>
+      <div class="grid-100 grid-parent">
+        <input class="do-input" name="email" type="email" placeholder="Email" {% if form %}value="{{form.email.data}}"{% endif %}></input>
+      </div>      
+      <div class="do-item-clear">&nbsp;</div>
+      <div class="grid-100 grid-parent">
+        <input class="do-input" name="name" type="text" placeholder="Real Name" {% if form %}value="{{form.name.data}}"{% endif %}></input>
+      </div>      
+    </div>
+
+    <div class="do-sub-section-clear">&nbsp;</div>
+
+    <div class="grid-100">
+      <button style="border-style:solid; border-radius:10px; border-color:#2897B7; background-color:white; padding: 3px 15px 3px 15px;">Register</button>
+    </div>
+    </form>
+  </div>
+</body>
+</html>

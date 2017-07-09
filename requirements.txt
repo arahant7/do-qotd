@@ -1,0 +1,15 @@
+appdirs==1.4.3
+click==6.7
+Flask==0.12.2
+Flask-Admin==1.5.0
+itsdangerous==0.24
+Jinja2==2.9.6
+MarkupSafe==1.0
+packaging==16.8
+pygobject==3.24.1
+pyparsing==2.2.0
+Reflector==2017.1.7.0.23.12
+six==1.10.0
+virtualenv==15.1.0
+Werkzeug==0.12.2
+WTForms==2.1

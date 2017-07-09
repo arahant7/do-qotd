@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <title>Comments</title>
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/unsemantic/1.1.3/unsemantic-grid-responsive.css" rel="stylesheet" type="text/css">
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/normalize/7.0.0/normalize.css" rel="stylesheet" type="text/css">
+  <link href="/static/main.css" rel="stylesheet" type="text/css" />
+
+</head>
+<body style="font-family: Helvetica Neue, Helvetica, Arial; background-color:#FAFAFA;">
+  <div class="grid-container" style="max-width:900px">
+    {% include 'header.html.tmpl' %}
+
+    <div class="grid-100" style="font-size: 1.2em;">
+      <a href="/questions/{{data.question_id}}/comments" class="do-internal-header-hyperlink" style="border-bottom: 5px solid #2897B7;">DISCUSSION</span>
+      <a href="/questions/{{data.question_id}}/comments/create" class="do-internal-hyperlink" style="float:right;">post</a>
+    </div>
+
+    <div class="do-sub-section-clear">&nbsp;</div>
+
+    {% for c in data.c %}
+    {% include 'comment.html.tmpl' %}
+    {% endfor %}
+
+  </div>
+</body>
+</html>
+

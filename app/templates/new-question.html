@@ -1,0 +1,266 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta name=viewport content="width=device-width, initial-scale=1">
+  <title>New Question</title>
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/unsemantic/1.1.3/unsemantic-grid-responsive.css" rel="stylesheet" type="text/css">
+  <link href="/static/main.css" rel="stylesheet" type="text/css">
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/sizzle/2.3.3/sizzle.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/underscore.js/1.8.3/underscore-min.js"></script>
+
+</head>
+<body>
+  <div class="grid-container" style="max-width:900px">
+    {% include 'header.html.tmpl' %}
+    
+    <div class="grid-100">
+    {% include 'errors.html.tmpl' %}
+    </div>
+
+    <!-- THE QUESTION -->
+    <div class="grid-100">
+      <span style="font-size: 1.2em; border-bottom: 5px solid #2897B7; cursor:pointer;" id="hdr_ask_question">ASK QUESTION</span>
+    </div>
+    <div class="do-sub-section-clear">&nbsp;</div>
+    
+    {% if data and data.uqft %}
+    <div class="error">You can add only one question for tomorrow. Here is your question:</div>
+    <div class="do-item-clear">&nbsp;</div>
+    {% with qft=data.uqft %}
+      {% include 'qft.html.tmpl' %}
+    {% endwith %}
+    {% else %}
+    <form method="POST" id="form_ask_question">
+    <div class="grid-100 grid-parent">
+      <textarea name="question" class="do-comment-box" style="font-size: 1.2em;" placeholder="Type your question" rows="5" >{% if data -%}{{ data.q }}{%- endif %}</textarea>
+    </div>
+    
+    <div class="do-item-clear">&nbsp;</div>
+
+    <!-- THE ANSWERS -->
+    <div class="grid-100">
+      <span>Answers:</span><small style="float:right; color:grey;">Add at least 2 answers</small>
+    </div>
+    <div class="do-item-clear">&nbsp;</div>
+
+    <script type="text/template" id="tmpl_answer">
+        <div class="grid-100 grid-parent do-options-outer">
+          <div class="grid-5 mobile-grid-10 grid-parent">
+            <input class="do-options-radio" type="radio" disabled="true">
+          </div>
+          <div class="grid-75 mobile-grid-70 grid-parent">  
+            <input class="do-input" name="answer" style="padding-right:0px" placeholder="Type answer"></input>
+            <div class="error tmpl-error" style="display:none">Please enter an answer</div> 
+          </div>  
+          <div class="grid-20 mobile-grid-20 grid-parent" style="text-align:right">
+            <button type="button" class="btn-add">Add</button>
+            <a href="#" class="do-internal-hyperlink btn-remove" style="display:none">X</a>
+          </div>  
+        </div>
+        <div class="do-item-clear">&nbsp;</div>
+    </script>
+
+    <div class="grid-100 grid-parent" id="div_answers">
+      <!-- Options -->
+      <div class="grid-100 grid-parent do-options-outer">
+        <div class="grid-5 mobile-grid-10 grid-parent">
+          <input class="do-options-radio" name="answer" type="radio" disabled="true">
+        </div>
+        <div class="grid-75 mobile-grid-70 grid-parent">  
+          <span style="font-size: 1.2em;color: grey;padding: 6px;">I don't have opinion on this</span>
+        </div>
+        <div class="grid-20 mobile-grid-20 grid-parent" style="text-align:right">  
+          <small>(Default)</small>
+        </div>
+      </div>
+    </div>
+    
+    <div class="do-sub-section-clear">&nbsp;</div>
+
+    <!-- THE REFERENCES -->
+    <div class="grid-100">
+      <span>References:</span><small style="float:right; color:grey;">Add at least 3 references</small>
+    </div>
+    <div class="do-item-clear">&nbsp;</div>
+
+    <script type="text/template" id="tmpl_reference">
+        <div class="grid-100 grid-parent">
+          <div class="grid-80 mobile-grid-80 grid-parent">
+            <div class="grid-100 grid-parent">
+              <input class="do-input" name="title" placeholder="Title"></input>
+              <div class="error tmpl-error-title" style="display:none">Please enter a title</div> 
+            </div>
+            <div class="do-item-clear">&nbsp;</div>
+            <div class="grid-100 grid-parent">
+              <input class="do-input" name="link" placeholder="Link"></input>
+              <div class="error tmpl-error-link" style="display:none">Please enter a link</div> 
+            </div>
+          </div>
+          <div class="grid-20 mobile-grid-20 grid-parent" style="text-align:right;">
+            <button type="button" class="btn-add">Add</button>
+            <a href="#" class="do-internal-hyperlink btn-remove" style="display:none">X</a>
+          </div>      
+        </div>
+        <div class="do-item-clear">&nbsp;</div>
+    </script>
+    <div class="grid-100 grid-parent" id="div_references">
+    </div>
+
+    <div class="do-sub-section-clear">&nbsp;</div>
+
+    <div class="grid-100">
+      <button style="border-style:solid; border-radius:10px; border-color:#2897B7; background-color:white; padding: 3px 15px 3px 15px;">Post</button>
+    </div>
+    <div class="do-sub-section-clear">&nbsp;</div>
+    </form>
+    {% endif %}
+
+  </div>
+
+<script>
+(function() {
+    function findAncestor (el, cl) {
+        while ((el = el.parentElement) && !el.classList.contains(cl));
+        return el;
+    }
+    function displayX(row) {
+        Sizzle('.btn-add', row)[0].style.display = 'none';
+        Sizzle('.btn-remove', row)[0].style.display = 'block';
+    }
+
+    var addAnswer = function(e, data) {
+        //Make sure an answer was typed. Only on add button click. Not on default row add or prepopulation
+        if (e) {
+            var parentNode = findAncestor(this, "tmpl-answer");
+            if (Sizzle("input[name='answer']", parentNode)[0].value.trim() == "") {
+                var errEl = Sizzle(".tmpl-error", parentNode)[0];
+                errEl.style.display = 'block';
+                window.setTimeout(function() {errEl.style.display = 'none';}, 3000); 
+                return;
+            }
+        }
+
+        //Create new row and add it
+        var tmpl = Sizzle("#tmpl_answer")[0].innerHTML;
+        var newAnswerHtml = _.template(tmpl)();
+        var newRow = document.createElement("div")
+        newRow.innerHTML = newAnswerHtml;
+        newRow.className = "tmpl-answer";
+             
+        var mainDiv = Sizzle("#div_answers")[0];
+        mainDiv.insertBefore(newRow, mainDiv.children[mainDiv.children.length - 1]);
+
+        //This row (the one that was clicked) should show the X button and hide the Add button
+        //Only on add button click and prepopulation. Not on default row add
+        if (e) {
+            var parentNode = findAncestor(this, "tmpl-answer");
+            displayX(parentNode);
+        }
+        //In case of prepopulation, set input value and display X
+        if (data) {
+            Sizzle("input[name='answer']", newRow)[0].value = data;
+            displayX(newRow);
+        }
+
+        //add on click handler for Add button
+        //addEventListener is idempotent - a good design
+        //https://developer.mozilla.org/en-US/docs/Web/API/EventTarget/addEventListener#Multiple_identical_event_listeners
+        _.each(Sizzle(".btn-add", mainDiv), function(btnAdd) {
+            btnAdd.addEventListener('click', addAnswer);
+        });
+
+        //add on click handler for Remove button
+        _.each(Sizzle(".btn-remove", mainDiv), function(btnX) {
+            btnX.addEventListener('click', function() {
+               //TODO - do we need to deregister event handlers?
+               findAncestor(this, "tmpl-answer").remove();
+            });
+        });
+    };
+
+    var addReference = function(e, data) {
+        //Make sure an reference was typed
+        if (e) {
+            var parentNode = findAncestor(this, "tmpl-reference");
+            errEls = [];
+            if (Sizzle("input[name='title']", parentNode)[0].value.trim() == "") 
+                errEls.push(Sizzle(".tmpl-error-title", parentNode)[0]);
+            if (Sizzle("input[name='link']", parentNode)[0].value.trim() == "") 
+                errEls.push(Sizzle(".tmpl-error-link", parentNode)[0]);
+
+            _.each(errEls, function(errEl) {
+                errEl.style.display = 'block';
+                window.setTimeout(function() {errEl.style.display = 'none';}, 3000); 
+            });
+
+            if (errEls.length > 0)
+                return; 
+         }
+
+        //Create new row and add it
+        var tmpl = Sizzle("#tmpl_reference")[0].innerHTML;
+        var newReferenceHtml = _.template(tmpl)();
+        var newRow = document.createElement("div")
+        newRow.innerHTML = newReferenceHtml;
+        newRow.className = "tmpl-reference";
+        
+        var mainDiv = Sizzle("#div_references")[0];
+        mainDiv.appendChild(newRow);
+        
+        if (e) {
+            var parentNode = findAncestor(this, "tmpl-answer");
+            displayX(parentNode);
+        }
+        //In case of prepopulation, set input value and display X
+        if (data) {
+            Sizzle("input[name='title']", newRow)[0].value = data[0];
+            Sizzle("input[name='link']", newRow)[0].value = data[1];
+            displayX(newRow);
+        }
+
+        //add on click handler for Add button
+        _.each(Sizzle(".btn-add", mainDiv), function(btnAdd) {
+            btnAdd.addEventListener('click', addReference);
+        });
+
+        //add on click handler for Remove button
+        _.each(Sizzle(".btn-remove", mainDiv), function(btnX) {
+            btnX.addEventListener('click', function() {
+               //TODO - do we need to deregister event handlers?
+               findAncestor(this, "tmpl-reference").remove();
+            });
+        });
+    };
+
+    {% if data %}
+    {% for a in data.a %}
+        addAnswer(null, {{json_dumps(a)|safe}});
+    {% endfor %}
+    {% for r in data.r %}
+        addReference(null, {{json_dumps(r)|safe}});
+    {% endfor %}
+    {% endif %}
+
+    addAnswer(); //Show one empty row always
+    addReference(); //Show one empty row always
+
+    //assumes el is block element. so to be fixed for non-block elements
+    //jquery does this by storing initial state. this is not so trivial.
+    //https://stackoverflow.com/questions/368280/javascript-hashmap-equivalent/383540#383540
+    var showHide = function(el) {
+        var state = el.style.display;
+        if (state == 'none')
+            el.style.display = 'block';
+        else
+            el.style.display = 'none';
+    };
+
+    Sizzle("#hdr_ask_question")[0].addEventListener('click', function(){
+        showHide(Sizzle("#form_ask_question")[0]);
+    });
+})();
+</script>
+
+</body>
+</html>

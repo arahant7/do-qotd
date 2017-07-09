@@ -1,0 +1,19 @@
+<div class="grid-100 grid-parent do-section-clear" style="line-height:3em;">
+  <div class="grid-66 mobile-grid-33 grid-parent">
+    <a href="/" class="do-internal-hyperlink hide-on-mobile" style="font-size: 2.5em;"><b>democracy</b>.online</a>
+    <a href="/" class="do-internal-hyperlink hide-on-desktop" style="font-size: 2.5em;"><b>d</b>.o</a>
+  </div>
+  <div class="grid-33 mobile-grid-66 grid-parent" style="color:grey; font-size:1em; text-align:right;">
+    {% if session['user'] %} 
+    <span>{{ session['user'].name }}</span>
+    &nbsp;|&nbsp;
+    <form method="POST" action="/logout" style="display:inline">
+    <button class="do-logout-button"><span>Logout</span></button>
+    </form>
+    {% else %}
+    <a class="do-internal-hyperlink" href="/login">Login</a>
+    &nbsp;|&nbsp;
+    <a class="do-internal-hyperlink" href="/register">Register</a>
+    {% endif %}
+  </div>
+</div>

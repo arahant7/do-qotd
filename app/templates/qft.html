@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <title>Questions For Tomorrow</title>
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/unsemantic/1.1.3/unsemantic-grid-responsive.css" rel="stylesheet" type="text/css">
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/normalize/7.0.0/normalize.css" rel="stylesheet" type="text/css">
+  <link href="/static/main.css" rel="stylesheet" type="text/css" />
+
+</head>
+<body>
+  <div class="grid-container" style="max-width:900px">
+    {% include 'header.html.tmpl' %}
+
+    <div class="grid-100" style="font-size: 1.2em;">
+      <a href="/questions/tomorrow" class="do-internal-header-hyperlink" style="border-bottom: 5px solid #FFE920;">QUESTIONS FOR TOMORROW</span>
+      <a href="/questions/create" class="do-internal-hyperlink" style="float:right;">ask</a>
+    </div>
+
+    <div class="do-sub-section-clear">&nbsp;</div>
+
+    {% for qft in data.qft %}
+    {% include 'qft.html.tmpl' %}
+    {% endfor %}
+
+  </div>
+</body>
+</html>

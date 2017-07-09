@@ -1,0 +1,146 @@
+body {
+    height:100%;
+    font-family: Helvetica Neue, Helvetica, Arial; background-color:#F3F3F3;  
+}
+
+.do-options-outer {
+  background-color:white;
+  padding:8px;
+  width:100%;
+  line-height:32px;
+}
+.do-options-radio {
+  margin-right:1em;
+}
+.do-options-radio-text {
+  font-size:1.2em; font-weight:500;
+}
+.do-sub-section-clear {
+  line-height: 18px;
+}
+.do-item-clear {
+  line-height: 8px;
+}
+.do-comment-box {
+  min-width: 100%;
+  border: none;
+  padding: 6px;
+  -webkit-box-sizing: border-box;
+  -moz-box-sizing: border-box;
+  box-sizing: border-box;
+}
+.do-logout-button {
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: grey;
+  font-size: 1em;
+  padding: 0;
+}
+.valign-center-outer {
+  display: table;
+}
+.valign-center-inner {
+  display: table-cell;
+  vertical-align: middle; 
+}
+.triangle-base {
+  width: 0;
+  height: 0;
+  border-left: 8px solid transparent;
+  border-right: 8px solid transparent;
+  margin: auto;
+  cursor: pointer;
+}
+.triangle-up {
+  border-bottom: 16px solid grey; /*#0F9D58*/
+}
+.triangle-down {
+  border-top: 16px solid grey;
+}
+.up-down-vote {
+  text-align: center;
+  padding: 6px 12px 0px 0px;
+}
+.up-down-vote span {
+  font-size: 0.6em;
+}
+.do-font-reference {
+  font-size: 0.8em;
+}
+.do-margin-reference {
+  margin: 3px 0 3px 0;
+}
+.do-hyperlink {
+  color:#4285f4;
+  text-decoration:none;
+}
+.do-internal-hyperlink {
+  color:grey;
+  text-decoration:none;
+  font-size:16px;
+}
+.do-internal-header-hyperlink {
+  color:black;
+  text-decoration:none;
+  font-size:inherit;
+}
+.ib {
+  display: inline-block;
+}
+.do-input {
+  min-width: 100%;border: none; font-size:1.2em; padding:6px;
+}
+
+.do-bg-white {
+  background-color: white;
+}
+
+.circle-result-outer {
+  width: 32px; height: 32px; background: white; border-radius: 16px; border-style: solid; display: table; margin: auto;
+}
+
+.circle-result-inner{
+  display:table-cell; vertical-align:middle; text-align: center; color:black; font-size:12px;
+}
+
+.do-content-box {
+  background-color:white;
+}
+
+.do-bottom-align {
+  position:absolute; bottom:0px;
+}
+
+ul.error {
+  color:red; 
+  list-style: none;
+  padding:0;
+}
+input.error {
+  border: 1px;
+  border-style: solid;
+  border-color: red;
+}
+.error {
+    color:red;
+}
+.toast {
+    width:200px;
+    height:20px;
+    height:auto;
+    position:absolute;
+    left:50%;
+    margin-left:-100px;
+    bottom:10px;
+    background-color: #383838;
+    color: #F0F0F0;
+    font-family: Calibri;
+    font-size: 20px;
+    padding:10px;
+    text-align:center;
+    border-radius: 2px;
+    -webkit-box-shadow: 0px 0px 24px -1px rgba(56, 56, 56, 1);
+    -moz-box-shadow: 0px 0px 24px -1px rgba(56, 56, 56, 1);
+    box-shadow: 0px 0px 24px -1px rgba(56, 56, 56, 1);
+}
