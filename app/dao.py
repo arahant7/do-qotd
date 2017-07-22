@@ -8,7 +8,7 @@ from datetime import timedelta
 from collections import namedtuple
 import bcrypt
 
-DB_CONN_PSYCOPG_LOCAL="dbname=democon user=kurtrips host=localhost"
+DB_CONN_PSYCOPG_LOCAL="dbname=democon user=democonuser password=democon-pa$$word!"
 
     
 SQL_GET_CURRENT_POLL = """
