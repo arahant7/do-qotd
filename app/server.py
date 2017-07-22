@@ -15,6 +15,8 @@ from apscheduler.schedulers.background import BackgroundScheduler
 app = Flask(__name__)
 app.secret_key = "HYm5jULmutLUKCB2"
 app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://kurtrips@localhost:5432/democon'
+
+#methods that are needed by jinja
 app.add_template_global(json.dumps, "json_dumps")
 app.add_template_global(helper.human_friendly_time, "human_friendly_time")
 
