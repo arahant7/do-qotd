@@ -6,6 +6,8 @@
   <link href="https://cdnjs.cloudflare.com/ajax/libs/normalize/7.0.0/normalize.css" rel="stylesheet" type="text/css">
   <link href="/static/main.css" rel="stylesheet" type="text/css" />
 
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/sizzle/2.3.3/sizzle.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/underscore.js/1.8.3/underscore-min.js"></script>
 </head>
 <body>
   <div class="grid-container" style="max-width:900px">
@@ -23,5 +25,16 @@
     {% endfor %}
 
   </div>
+  <script src="/static/main.js"></script>
+  <script>
+    {% for qft in data.qft %}
+    {% if qft.net_vote_user > 0 %}
+    mainjs.setUpDownVoteColor(Sizzle(String.format("#div_question_{0} .triangle-up", {{qft.question_id}}))[0]);
+    {% endif %}
+    {% if qft.net_vote_user < 0 %}
+    mainjs.setUpDownVoteColor(Sizzle(String.format("#div_question_{0} .triangle-down", {{qft.question_id}}))[0]);
+    {% endif %}
+    {% endfor %}
+  </script>
 </body>
 </html>

@@ -101,7 +101,7 @@ def logout():
 def vote(poll_id, answer_id):
 
     if SESSION_KEY not in session:
-        abort(make_response(jsonify(message=STR_NOT_AUTHENTICATED), 400))
+        abort(make_response(jsonify(message=STR_NOT_AUTHENTICATED), 401))
     u = session[SESSION_KEY]
     
     # write vote to db
@@ -133,7 +133,7 @@ def updownvote(on_key, on_id, amt):
         abort(make_response(jsonify(message=STR_INVALID_UDV_AMOUNT), 400))
 
     if SESSION_KEY not in session:
-        abort(make_response(jsonify(message=STR_NOT_AUTHENTICATED), 400))
+        abort(make_response(jsonify(message=STR_NOT_AUTHENTICATED), 401))
     u = session[SESSION_KEY]
 
     # write updownvote to db

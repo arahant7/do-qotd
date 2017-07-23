@@ -6,6 +6,8 @@
   <link href="https://cdnjs.cloudflare.com/ajax/libs/normalize/7.0.0/normalize.css" rel="stylesheet" type="text/css">
   <link href="/static/main.css" rel="stylesheet" type="text/css" />
 
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/sizzle/2.3.3/sizzle.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/underscore.js/1.8.3/underscore-min.js"></script>
 </head>
 <body style="font-family: Helvetica Neue, Helvetica, Arial; background-color:#FAFAFA;">
   <div class="grid-container" style="max-width:900px">
@@ -23,6 +25,17 @@
     {% endfor %}
 
   </div>
+  <script src="/static/main.js"></script>
+  <script>
+    {% for c in data.c %}
+    {% if c.net_vote_user > 0 %}
+    mainjs.setUpDownVoteColor(Sizzle(String.format("#div_comment_{0} .triangle-up", {{c.comment_id}}))[0]);
+    {% endif %}
+    {% if c.net_vote_user < 0 %}
+    mainjs.setUpDownVoteColor(Sizzle(String.format("#div_comment_{0} .triangle-down", {{c.comment_id}}))[0]);
+    {% endif %}
+    {% endfor %}
+  </script>
 </body>
 </html>
 

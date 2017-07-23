@@ -8,8 +8,8 @@ from datetime import timedelta
 from collections import namedtuple
 import bcrypt
 
-DB_CONN_PSYCOPG_LOCAL="dbname=democon user=democonuser password=democon-pa$$word!"
-
+#DB_CONN_PSYCOPG_LOCAL="dbname=democon user=democonuser password=democon-pa$$word!"
+DB_CONN_PSYCOPG_LOCAL="dbname=democon user=kurtrips host=localhost"
     
 SQL_GET_CURRENT_POLL = """
 SELECT * FROM poll WHERE NOW() < end_ts AND NOW() > start_ts
