@@ -1,3 +1,22 @@
+function updateQueryStringParameter(uri, key, value) {
+  var re = new RegExp("([?&])" + key + "=.*?(&|$)", "i");
+  var separator = uri.indexOf('?') !== -1 ? "&" : "?";
+  if (uri.match(re)) {
+    return uri.replace(re, '$1' + key + "=" + value + '$2');
+  }
+  else {
+    return uri + separator + key + "=" + value;
+  }
+}
+
+function queryStringToObj(qs) {
+  var obj = {}; 
+  qs.replace(/([^=&]+)=([^&]*)/g, function(m, key, value) {
+    obj[decodeURIComponent(key)] = decodeURIComponent(value);
+  });
+  return obj;
+}
+
 String.format = function(format) {
     var args = Array.prototype.slice.call(arguments, 1);
     return format.replace(/{(\d+)}/g, function(match, number) { 
@@ -35,7 +54,7 @@ var MainJs = function() {
                 Sizzle(".updownvote-value", elem.parentNode)[0].innerHTML = jsonRes.net_vote;
 
                 //Set color for votes
-                that.setUpDownVoteColor(elem);
+                that.setUpDownVoteColor(elem, jsonRes.my_vote);
             };
             xhr.open('POST', url);
             xhr.send();            
@@ -67,12 +86,15 @@ var MainJs = function() {
         });
     });
 
-    this.setUpDownVoteColor = function(elem) {
+    this.setUpDownVoteColor = function(elem, amount) {
         //Clear color of both triangles
         _.each(Sizzle(".triangle-base", elem.parentNode), function(elem2) {
             elem2.style['border-bottom-color'] = "grey";
             elem2.style['border-top-color'] = "grey";
         });
+        if (amount == 0)
+            return;
+ 
         //Set color of user's vote
         var color = Sizzle("input[name='color']", elem)[0].value;
         elem.style['border-bottom-color'] = color;

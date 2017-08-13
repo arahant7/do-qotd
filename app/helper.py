@@ -12,7 +12,6 @@ def human_friendly_time(ts):
     days = tabs // (24*60*60)
         
     res = None
-    print(days)
     if days > 1:
         res =  "{} days".format(days)
     elif days == 1:

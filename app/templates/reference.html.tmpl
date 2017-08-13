@@ -1,23 +1,24 @@
 <!-- ONE REFERENCE -->
 <div class="grid-100 do-content-box" id="div_reference_{{r.reference_id}}">
-  <div class="grid-5 mobile-grid-10 grid-parent up-down-vote">
 
+  <div class="grid-5 mobile-grid-10 grid-parent up-down-vote">
     <div class="grid-100 grid-parent triangle-base triangle-up">
         <input type="hidden" name="url" value="/references/{{r.reference_id}}/updownvote/1"/>
-        <input type="hidden" name="color" value="#7CEB98"/>
+        <input type="hidden" name="color" value="#0F9D58"/>
     </div>
     <span class="updownvote-value">{{ r.net_vote }}</span>
     <div class="grid-100 grid-parent triangle-base triangle-down">
         <input type="hidden" name="url" value="/references/{{r.reference_id}}/updownvote/-1"/>
-        <input type="hidden" name="color" value="#FF7373"/>
-    </div> 
+        <input type="hidden" name="color" value="#d70000"/>
+    </div>
   </div>
+
   <div class="grid-95 mobile-grid-90 grid-parent">
     <div class="do-margin-reference">
   <span class="do-font-reference">{{ r.title }}</span>
 </div>
 <div class="do-margin-reference">
-  <a class="do-font-reference do-hyperlink" href="{{ r.url }}">{{ r.url }}</a>
+  <a target="_blank" class="do-font-reference do-hyperlink" href="{{ r.url }}">{{ r.url }}</a>
 </div>
     <div class="do-margin-reference">
       <span class="do-font-reference">{{ human_friendly_time(r.create_ts) }} | {{ r.user_name }}</span>

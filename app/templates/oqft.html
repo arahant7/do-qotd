@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8" />
+  <meta name=viewport content="width=device-width, initial-scale=1">
+  <title>CANDIDATE QUESTION FOR TOMORROW</title>
+  <link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/unsemantic/1.1.3/unsemantic-grid-responsive.css" />
+  <link href="/static/main.css" rel="stylesheet" type="text/css" />
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/sizzle/2.3.3/sizzle.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/underscore.js/1.8.3/underscore-min.js"></script>
+</head>
+
+<body>
+  <div class="grid-container" style="max-width:900px">
+    {% include 'header.html.tmpl' %}
+   
+    <!-- THE QUESTION -->
+    <div class="grid-100 grid-parent">
+      <span style="font-size: 1.2em;">
+        <span style="border-bottom: 5px solid #d70000;">CANDIDATE QUESTION FOR TOMORROW</span>
+      </span>
+    </div>
+
+    <div class="do-sub-section-clear">&nbsp;</div>
+
+    <div class="grid-100 grid-parent" style="background-color:white; padding: 0.5em; font-size:1.2em; font-weight:500;">
+
+      <span>{{ data.q.question|e }}</span>
+
+    </div>
+    <div class="do-sub-section-clear">&nbsp;</div>
+
+
+    <!-- THE ANSWERS -->
+    <div class="grid-100 grid-parent">
+      <span>Options:</span>
+    </div><!-- Options -->
+    <div class="do-item-clear">&nbsp;</div>
+
+    {% for a in data.a %}
+    <div class="grid-100 do-options-outer valign-center-outer" id="div_answer_{{a.answer_id}}">
+      <!-- Options -->
+      <div class="grid-5 mobile-grid-10 grid-parent valign-center-inner">
+	    <input class="do-options-radio" name="answer" value="{{ a.answer_id }}" type="radio" />
+      </div>
+      <div class="grid-75 mobile-grid-70 grid-parent">
+	    <span class="do-options-radio-text">{{ a.answer|e }}</span>
+      </div>
+      <div class="grid-20 mobile-grid-20 grid-parent" id="div_answer_{{a.answer_id}}_circle">
+      </div>
+    </div>
+    <div class="do-item-clear">&nbsp;</div>
+    {% endfor %}
+
+    <div class="do-sub-section-clear">&nbsp;</div>
+
+    <!--REFERENCES-->
+    <div class="grid-100 grid-parent" style="font-size: 1.2em;">
+      <a href="javascript:" class="do-internal-header-hyperlink" style="border-bottom: 5px solid #FF9800;">REFERENCES</span>
+    </div>
+    <div class="do-sub-section-clear">&nbsp;</div>
+
+    {% for r in data.r %}
+    {% include 'reference.html.tmpl' %}
+    {% endfor %}
+
+    <div class="do-sub-section-clear">&nbsp;</div>
+    
+  </div>
+  <div class='toast' style='display:none'></div>
+
+</body>
+</html>

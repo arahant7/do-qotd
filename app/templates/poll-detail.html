@@ -19,12 +19,12 @@
     <div class="grid-100 grid-parent">
     <div class="grid-50 grid-parent">
       <span style="font-size: 1.2em;">
-        <span style="border-bottom: 5px solid #d70000;">QUESTION OF THE DAY</span>
+        <span style="border-bottom: 5px solid #d70000;">QUESTION</span>
       </span>
     </div>
     <div class="grid-50 grid-parent">
-      <div class="hide-on-mobile" style="float:right; font-size:0.8em;">Ends in {{human_friendly_time(data.q.end_ts)}}</div>
-      <div class="hide-on-desktop" style="margin-top:12px; font-size:0.8em;">Ends in {{human_friendly_time(data.q.end_ts)}}</div>
+      <div class="hide-on-mobile" style="float:right; font-size:0.8em;">Ended {{human_friendly_time(data.q.end_ts)}}</div>
+      <div class="hide-on-desktop" style="margin-top:12px; font-size:0.8em;">Ended {{human_friendly_time(data.q.end_ts)}}</div>
     </div>
     </div>
 
@@ -56,7 +56,7 @@
     <div class="grid-100 do-options-outer valign-center-outer" id="div_answer_{{a.answer_id}}">
       <!-- Options -->
       <div class="grid-5 mobile-grid-10 grid-parent valign-center-inner">
-	    <input class="do-options-radio" name="answer" value="{{ a.answer_id }}" type="radio" />
+	    <input class="do-options-radio" name="answer" value="{{ a.answer_id }}" type="radio" disabled />
         <input type="hidden" name="url" value="/polls/{{a.poll_id}}/vote/{{a.answer_id}}"/>
       </div>
       <div class="grid-75 mobile-grid-70 grid-parent">
@@ -78,8 +78,7 @@
 
     <!--REFERENCES-->
     <div class="grid-100 grid-parent" style="font-size: 1.2em;">
-      <a href="questions/{{data.q.question_id}}/references" class="do-internal-header-hyperlink" style="border-bottom: 5px solid #FF9800;">REFERENCES</span>
-      <a href="questions/{{data.q.question_id}}/references/create" class="do-internal-hyperlink" style="float:right;">add</a>
+      <a href="/questions/{{data.q.question_id}}/references" class="do-internal-header-hyperlink" style="border-bottom: 5px solid #FF9800;">REFERENCES</span></a>
     </div>
     <div class="do-sub-section-clear">&nbsp;</div>
 
@@ -91,8 +90,7 @@
     
     <!--DISCUSSION-->
     <div class="grid-100 grid-parent" style="font-size: 1.2em;">
-      <a href="questions/{{data.q.question_id}}/comments" class="do-internal-header-hyperlink" style="border-bottom: 5px solid #2897B7;">DISCUSSION</span>
-      <a href="questions/{{data.q.question_id}}/comments/create" class="do-internal-hyperlink" style="float:right;">post</a>
+      <a href="/questions/{{data.q.question_id}}/comments" class="do-internal-header-hyperlink" style="border-bottom: 5px solid #2897B7;">DISCUSSION</span></a>
     </div>
     <div class="do-sub-section-clear">&nbsp;</div>
 
@@ -100,33 +98,7 @@
     {% include 'comment.html.tmpl' %}
     {% endfor %}
 
-    <div class="do-sub-section-clear">&nbsp;</div>
-
-    <!--QUESTIONS FOR TOMORROW-->
-    <div class="grid-100 grid-parent" style="font-size: 1.2em;">
-      <a href="/questions/tomorrow" class="do-internal-header-hyperlink" style="border-bottom: 5px solid #FFE920;">QUESTIONS FOR TOMORROW</a>
-      <a href="questions/create" class="do-internal-hyperlink" style="float:right;">ask</a>
-    </div>
-    <div class="do-sub-section-clear">&nbsp;</div>
-    
-    {% for qft in data.qft %}
-    {% include 'qft.html.tmpl' %}
-    {% endfor %}
-
-    <div class="do-sub-section-clear">&nbsp;</div>
-
-    <!--QUESTION HISTORY-->
-    <div class="grid-100 grid-parent" style="font-size: 1.2em;">
-      <a href="/questions/history" class="do-internal-header-hyperlink" style="border-bottom: 5px solid #795548;">QUESTION HISTORY</a>
-    </div>
-    <div class="do-sub-section-clear">&nbsp;</div>
-    
-    {% for qh in data.qh %}
-    {% include 'qh.html.tmpl' %}
-    {% endfor %}
-
   </div>
-  <div class='toast' style='display:none'></div>
 
   <script src="/static/main.js"></script>
   <!-- Set the color for user updownvotes and votes -->
@@ -146,15 +118,6 @@
     {% endif %}
     {% if c.net_vote_user < 0 %}
     mainjs.setUpDownVoteColor(Sizzle(String.format("#div_comment_{0} .triangle-down", {{c.comment_id}}))[0]);
-    {% endif %}
-    {% endfor %}
-
-    {% for qft in data.qft %}
-    {% if qft.net_vote_user > 0 %}
-    mainjs.setUpDownVoteColor(Sizzle(String.format("#div_question_{0} .triangle-up", {{qft.question_id}}))[0]);
-    {% endif %}
-    {% if qft.net_vote_user < 0 %}
-    mainjs.setUpDownVoteColor(Sizzle(String.format("#div_question_{0} .triangle-down", {{qft.question_id}}))[0]);
     {% endif %}
     {% endfor %}
 

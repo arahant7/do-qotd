@@ -3,17 +3,17 @@
   <div class="grid-5 mobile-grid-10 grid-parent up-down-vote">
     <div class="grid-100 grid-parent triangle-base triangle-up">
         <input type="hidden" name="url" value="/questions/{{qft.question_id}}/updownvote/1"/>
-        <input type="hidden" name="color" value="#7CEB98"/>
+        <input type="hidden" name="color" value="#0F9D58"/>
     </div>
     <span class="updownvote-value">{{ qft.net_vote }}</span>
     <div class="grid-100 grid-parent triangle-base triangle-down">
         <input type="hidden" name="url" value="/questions/{{qft.question_id}}/updownvote/-1"/>
-        <input type="hidden" name="color" value="#FF7373"/>
+        <input type="hidden" name="color" value="#d70000"/>
     </div> 
   </div>
   <div class="grid-95 mobile-grid-90 grid-parent">
     <div class="do-margin-reference">
-      <span class="do-font-reference">{{ qft.question|e }}</span>
+      <a class="do-internal-hyperlink" style="color:black;" href="/questions/tomorrow/{{ qft.question_id }}"><span class="do-font-reference">{{ qft.question|e }}</span></a>
     </div>
   </div>
 </div>

@@ -26,17 +26,18 @@
     {% else %}
     <form method="POST">
     <div class="grid-100">
+      {% include 'errors.html.tmpl' %}
       <div class="grid-100 grid-parent">
-        <input class="do-input" name="title" placeholder="Title"></input>
+        <input class="do-input" name="title" placeholder="Title" value={{ request.values['title'] }}></input>
       </div>
       <div class="do-item-clear">&nbsp;</div>
       <div class="grid-100 grid-parent">
-        <input class="do-input" name="url" placeholder="Link"></input>
+        <input class="do-input" name="url" placeholder="Link" value={{ request.values['url'] }}></input>
       </div>      
     </div>
     <div class="do-item-clear">&nbsp;</div>
     <div class="grid-100">
-      <button style="border-style:solid; border-radius:10px; border-color:#2897B7; background-color:white; padding: 3px 15px 3px 15px;">Post</button>
+      <button class="do-blue-button">Post</button>
     </div>
     </form>
     {% endif %}

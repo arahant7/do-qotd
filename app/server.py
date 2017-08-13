@@ -1,6 +1,5 @@
 import os
 import json
-from pprint import pprint
 from datetime import datetime
 
 import dao
@@ -41,7 +40,7 @@ def home_view():
     else:
         usr_id = 0
 
-    data = dao.get_votd(usr_id)
+    data = dao.get_poll_detail(usr_id=usr_id, question_id=None)
     return render_template('main.html', data=data)
 
 
@@ -150,8 +149,12 @@ def view_comments(question_id):
     if SESSION_KEY not in session:
         return redirect("/login?next={}".format(request.path))
     u = session[SESSION_KEY]
+
+    sort_on = request.args.get('sort_on')
+    if sort_on not in ['create_ts', 'net_vote']:
+        sort_on = 'create_ts'
     
-    c = dao.get_comments(u['usr_id'], question_id, sort_on='create_ts', limit=10)
+    c = dao.get_comments(u['usr_id'], question_id, sort_on=sort_on, limit=10)
     data = {'c':c, 'question_id':question_id}
 
     return render_template("comments.html", data=data)
@@ -219,7 +222,9 @@ def view_new_reference(question_id):
 def create_reference(question_id):
     title = request.values['title']
     url = request.values['url']
-
+    if not is_url(url):
+        return render_template("new-reference.html", errors=["The reference link is not a valid url"]) 
+     
     if SESSION_KEY not in session:
         return redirect("/login?next={}".format(request.path))
     u = session[SESSION_KEY]
@@ -312,13 +317,47 @@ def view_qft():
     data = {'qft':qft}
     return render_template("qft.html", data=data)
 
+@app.route('/questions/history', methods=['GET'])
+def view_polls_history():
+    if SESSION_KEY not in session:
+        return redirect("/login?next={}".format(request.path))
+    u = session[SESSION_KEY]
+    
+    qh = dao.get_polls(limit=10)
+
+    data = {'qh':qh}
+    return render_template("qh.html", data=data)
+
+@app.route('/questions/tomorrow/<int:question_id>', methods=['GET'])
+def view_one_qft(question_id):
+    if SESSION_KEY not in session:
+        return redirect("/login?next={}".format(request.path))
+    u = session[SESSION_KEY]
+    
+    oqft = dao.get_question_detail(question_id)
+
+    return render_template("oqft.html", data=oqft)
+
+@app.route('/questions/history/<int:question_id>', methods=['GET'])
+def view_poll_detail(question_id):
+    if SESSION_KEY not in session:
+        return redirect("/login?next={}".format(request.path))
+    u = session[SESSION_KEY]
+    
+    data = dao.get_poll_detail(u['usr_id'], question_id)
+
+    return render_template("poll-detail.html", data=data)
 
 def is_safe_url(target):
     if target is None:
-        return True
+        return true
     ref_url = urlparse(request.host_url)
     test_url = urlparse(urljoin(request.host_url, target))
     return test_url.scheme in ('http', 'https') and ref_url.netloc == test_url.netloc
+
+def is_url(target):
+    up = urlparse(target)
+    return up.scheme in ('http', 'https') and up.netloc
 
 
 ####Admin code post this###

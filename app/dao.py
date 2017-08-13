@@ -11,11 +11,30 @@ import bcrypt
 #DB_CONN_PSYCOPG_LOCAL="dbname=democon user=democonuser password=democon-pa$$word!"
 DB_CONN_PSYCOPG_LOCAL="dbname=democon user=kurtrips host=localhost"
     
+SQL_GET_QUESTION = """
+SELECT *
+FROM question
+WHERE question_id = %s
+""" 
+
+SQL_GET_QUESTION_WITH_POLL = """
+SELECT q.*, p.*
+FROM question q
+INNER JOIN poll p ON q.question_id = p.question_id
+WHERE q.question_id = %s
+""" 
+
+SQL_GET_ANSWERS_FOR_QUESTION = """
+SELECT *
+FROM answer
+WHERE question_id = %s
+""" 
+
 SQL_GET_CURRENT_POLL = """
 SELECT * FROM poll WHERE NOW() < end_ts AND NOW() > start_ts
 """
 
-SQL_GET_ANSWERS_FOR_QUESTION = """
+SQL_GET_ANSWERS_FOR_POLL = """
 SELECT a.*, p.poll_id FROM answer a 
 INNER JOIN poll p ON a.question_id = p.question_id
 WHERE a.question_id = %s 
@@ -65,11 +84,6 @@ INSERT INTO vote(poll_id, usr_id, answer_id) VALUES(%s, %s, %s)
 ON CONFLICT (poll_id, usr_id) DO UPDATE SET answer_id = %s, create_ts = NOW()
 """
 
-SQL_INSERT_UPDOWNVOTE = """
-INSERT INTO updownvote(usr_id, on_key, on_id, amount) VALUES(%s, %s, %s, %s)
-ON CONFLICT (usr_id, on_key, on_id) DO UPDATE SET amount = %s, create_ts = NOW()
-"""
-
 SQL_GET_UPDOWNVOTES = """
 SELECT COALESCE(SUM(amount),0) as net_vote FROM updownvote 
 WHERE on_key = %s AND on_id = %s
@@ -101,21 +115,28 @@ INSERT INTO answer(usr_id, question_id, answer) VALUES(%s, %s, %s)
 DaoResult = namedtuple('DaoResult', ['success', 'message', 'data'])
 
    
-def get_votd(usr_id):
+def get_poll_detail(usr_id, question_id):
     if usr_id is None:
         usr_id = 0
 
     conn = psycopg2.connect(DB_CONN_PSYCOPG_LOCAL)
     cur = conn.cursor(cursor_factory=RealDictCursor)
 
-    q = get_current_poll_with_question()
+    if question_id:
+        cur.execute(SQL_GET_QUESTION_WITH_POLL, (question_id, ))
+        q = cur.fetchone()
+    else:
+        q = get_current_poll_with_question()
+
+    if not q:
+        return None
 
     cur.execute(SQL_GET_NUM_VOTES_FOR_POLL, (q['poll_id'], ))
     nv = cur.fetchone()
     q.update(nv)
 
     #answers
-    cur.execute(SQL_GET_ANSWERS_FOR_QUESTION, (q['question_id'], ))
+    cur.execute(SQL_GET_ANSWERS_FOR_POLL, (q['question_id'], ))
     a = cur.fetchall()
     av = []
     if usr_id > 0:
@@ -132,14 +153,17 @@ def get_votd(usr_id):
     #questions created between current qotd's start_ts and end_ts are questions for tomorrow
     qft = get_questions_between(q['start_ts'], q['end_ts'], usr_id, cur=cur)
 
+    #get poll history
+    qh = get_polls()
+
     conn.close()
-    return {'q':q, 'a':a, 'r':r, 'c':c, 'qft':qft, 'av':av}
+    return {'q':q, 'a':a, 'r':r, 'c':c, 'qft':qft, 'av':av, 'qh':qh}
 
 SQL_GET_CURRENT_POLL_WITH_QUESTION = """
 SELECT p.*, q.* FROM poll p 
 INNER JOIN question q ON p.question_id = q.question_id
-WHERE p.start_ts < NOW() AND p.end_ts > NOW() 
-ORDER BY p.end_ts LIMIT 1
+WHERE p.start_ts < NOW()
+ORDER BY p.end_ts DESC LIMIT 1
 """
 
 def get_current_poll_with_question(cur=None):
@@ -150,7 +174,7 @@ def get_current_poll_with_question(cur=None):
 
     cur.execute(SQL_GET_CURRENT_POLL_WITH_QUESTION)
     q = cur.fetchone()
-    
+
     if new_conn:
         new_conn.close()
 
@@ -230,28 +254,55 @@ def get_questions_between(start_ts, end_ts, usr_id=0, limit=3, sort_on='net_vote
 
     return r
 
+SQL_GET_POLLS = """
+SELECT p.*, q.question, COALESCE(pv.tv, 0) as tv
+FROM poll p
+INNER JOIN question q ON p.question_id = q.question_id
+LEFT JOIN (SELECT poll_id, COUNT(*) as tv FROM vote GROUP BY poll_id) as pv ON p.poll_id = pv.poll_id
+ORDER BY {} {} LIMIT {}
+""" 
+
+def get_polls(limit=3, sort_on='end_ts', sort_dir='DESC', cur=None):
+    query = SQL_GET_POLLS.format(sort_on, sort_dir, limit + 1) 
+
+    new_conn = None
+    if not cur:
+        new_conn = psycopg2.connect(DB_CONN_PSYCOPG_LOCAL)
+        cur = new_conn.cursor(cursor_factory=RealDictCursor)
+
+    cur.execute(query)
+    r = cur.fetchall()
+
+    if new_conn:
+        new_conn.close()
+
+    del r[0] #remove the current poll
+    return r
+
 
 def create_next_poll():
     conn = psycopg2.connect(DB_CONN_PSYCOPG_LOCAL)
     cur = conn.cursor(cursor_factory=RealDictCursor)
-    cur.execute(SQL_GET_CURRENT_POLL)
-    p = cur.fetchone()
-    #TODO - what if p is null
+
+    p = get_current_poll_with_question()
 
     #next poll is created roughly 5 minutes before the end of current poll
+    #or if current poll is already past its end date
     timeleft = p['end_ts'] - datetime.utcnow()
-    if not (timeleft.days == 0 and timeleft.seconds < 300):
+    if not ((timeleft.days == 0 and timeleft.seconds < 300) or timeleft.days < 0):
         conn.close()
         return
 
     #get highest rated question for tomorrow
-    qft = get_questions_between(q['start_ts'], q['end_ts'], limit=1)
-    np = cur.fetchone()
-    #TODO - what if np is null
+    next_start_ts = max(p['end_ts'], datetime.utcnow())
+    qft = get_questions_between(p['start_ts'], next_start_ts, limit=1)
+    if not qft:
+        conn.close()
+        return
 
     #insert the entry into poll
     cur.execute(SQL_INSERT_POLL,
-        (p['end_ts'], p['end_ts'] + timedelta(days=1), np['question_id']))
+        (next_start_ts, next_start_ts + timedelta(days=1), qft[0]['question_id']))
 
     conn.commit()
     conn.close()
@@ -311,7 +362,7 @@ def save_vote(usr_id, poll_id, answer_id):
         return DaoResult(False, "This poll is closed for voting.", None)
 
     #Check if answer does belong to poll question
-    cur.execute(SQL_GET_ANSWERS_FOR_QUESTION, (p['question_id'],))
+    cur.execute(SQL_GET_ANSWERS_FOR_POLL, (p['question_id'],))
     al = cur.fetchall()
     if answer_id not in (a['answer_id'] for a in al):
         conn.close()
@@ -329,6 +380,16 @@ def save_vote(usr_id, poll_id, answer_id):
     return DaoResult(True, "", res)
 
 
+SQL_INSERT_UPDOWNVOTE = """
+INSERT INTO updownvote(usr_id, on_key, on_id, amount) VALUES(%s, %s, %s, %s)
+ON CONFLICT (usr_id, on_key, on_id) DO UPDATE SET amount = %s, create_ts = NOW()
+"""
+
+SQL_GET_UPDOWNVOTES_FOR_USR_ONID = """
+SELECT amount FROM updownvote 
+WHERE on_key = %s AND on_id = %s AND usr_id = %s
+"""
+
 def save_updownvote(usr_id, on_key, on_id, amount):
     if amount not in [-1,1]:
         return DaoResult(False, "Invalid updownvote amount", None)
@@ -336,6 +397,14 @@ def save_updownvote(usr_id, on_key, on_id, amount):
     conn = psycopg2.connect(DB_CONN_PSYCOPG_LOCAL)
     cur = conn.cursor(cursor_factory=RealDictCursor)
     
+    #get user's current votes on the given item
+    cur.execute(SQL_GET_UPDOWNVOTES_FOR_USR_ONID, (on_key, on_id, usr_id))
+    res = cur.fetchone()
+
+    #we are removing the vote
+    if res and amount == res['amount']:
+        amount = 0;
+
     #save the updownvote
     cur.execute(SQL_INSERT_UPDOWNVOTE, (usr_id, on_key, on_id, amount, amount))
 
@@ -345,8 +414,8 @@ def save_updownvote(usr_id, on_key, on_id, amount):
 
     conn.commit()
     conn.close()
+    res['my_vote'] = amount;
     return DaoResult(True, "", res)
-
 
 
 def save_comment(usr_id, question_id, comment, in_reply_to):
@@ -371,8 +440,7 @@ def save_reference(usr_id, question_id, title, url):
     cur = conn.cursor(cursor_factory=RealDictCursor)
     
     #Check if poll is live
-    cur.execute(SQL_GET_CURRENT_POLL_WITH_QUESTION)
-    p = cur.fetchone()
+    p = get_current_poll_with_question()
     if p['question_id'] != question_id:
         conn.close()
         return DaoResult(False, "This poll is closed for references.", None)
@@ -458,4 +526,22 @@ def get_user_qft(usr_id):
     
     conn.close()
     return uqft
+
+
+def get_question_detail(question_id):
+    conn = psycopg2.connect(DB_CONN_PSYCOPG_LOCAL)
+    cur = conn.cursor(cursor_factory=RealDictCursor)
+    
+    cur.execute(SQL_GET_QUESTION, (question_id, ))
+    q = cur.fetchone()
+    if not q:
+        return None
+    
+    cur.execute(SQL_GET_ANSWERS_FOR_QUESTION, (question_id, ))
+    a = cur.fetchall()
+
+    r = get_references(0, question_id) 
+
+    conn.close()
+    return {'q':q, 'r':r, 'a':a}
 

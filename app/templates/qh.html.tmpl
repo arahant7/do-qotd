@@ -1,0 +1,16 @@
+<!-- ONE QUESTION HISTORY-->
+    <div class="grid-100 grid-parent do-content-box" style="padding:8px">
+
+      <!-- This span comes before the question so as to mae it float to top-right instead of bottom-right -->
+      <span style="width: 40px; height: 40px; background: #0F9D58; border-radius: 20px; display: table; float:right;">
+        <span style="display:table-cell; vertical-align:middle; text-align: center; color:white; font-size:12px;">
+	      <span>{{ qh.tv }}</span>
+	      <small>votes</small>
+	    </span>
+      </span>
+
+      <a class="do-internal-hyperlink" style="color:black;" href="/questions/history/{{qh.question_id}}"><span style="font-size:0.8em;">{{ qh.question|e }}</span></a>
+
+    </div>
+    <div class="do-item-clear">&nbsp;</div>
+
