@@ -350,7 +350,7 @@ def view_poll_detail(question_id):
 
 def is_safe_url(target):
     if target is None:
-        return true
+        return True
     ref_url = urlparse(request.host_url)
     test_url = urlparse(urljoin(request.host_url, target))
     return test_url.scheme in ('http', 'https') and ref_url.netloc == test_url.netloc
