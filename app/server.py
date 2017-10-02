@@ -96,20 +96,22 @@ def logout():
     return redirect('/')
 
 
-@app.route('/polls/<int:poll_id>/vote/<int:answer_id>', methods=['POST'])
-def vote(poll_id, answer_id):
+@app.route('/polls/<int:poll_id>/vote', methods=['POST'])
+def vote(poll_id):
 
     if SESSION_KEY not in session:
-        abort(make_response(jsonify(message=STR_NOT_AUTHENTICATED), 401))
+        return redirect('/login')
+#        abort(make_response(jsonify(message=STR_NOT_AUTHENTICATED), 401))
     u = session[SESSION_KEY]
     
+    answer_id = int(request.form['answer'])
     # write vote to db
     res = dao.save_vote(u['usr_id'], poll_id, answer_id)
 
     if not res.success:
         abort(make_response(jsonify(message=res.message), 400))
 
-    return jsonify(res.data) 
+    return redirect('/') #jsonify(res.data) 
 
 
 @app.route('/questions/<int:question_id>/updownvote/<amt>', methods=['POST'])
@@ -340,11 +342,16 @@ def view_one_qft(question_id):
 
 @app.route('/questions/history/<int:question_id>', methods=['GET'])
 def view_poll_detail(question_id):
-    if SESSION_KEY not in session:
-        return redirect("/login?next={}".format(request.path))
-    u = session[SESSION_KEY]
+#    if SESSION_KEY not in session:
+#        return redirect("/login?next={}".format(request.path))
+#    u = session[SESSION_KEY]
+    if SESSION_KEY in session:
+        usr_id = session[SESSION_KEY]['usr_id']
+    else:
+        usr_id = 0
+
     
-    data = dao.get_poll_detail(u['usr_id'], question_id)
+    data = dao.get_poll_detail(usr_id, question_id)
 
     return render_template("poll-detail.html", data=data)
 

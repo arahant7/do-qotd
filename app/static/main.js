@@ -61,31 +61,6 @@ var MainJs = function() {
 		});
 	});
 
-    //answer radio
-    _.each(Sizzle("input[name='answer']"), function(elem) {
-        elem.addEventListener('click', function() {
-            var url = Sizzle("input[name='url']", elem.parentNode)[0].value;
-            var xhr = new XMLHttpRequest();
-            xhr.onreadystatechange = function(e) {
-                if (xhr.readyState !== XMLHttpRequest.DONE) return;
-                if (xhr.status === 401) {
-                    window.location.href = '/login';
-                    return;
-                }
-                if (xhr.status !== 200) {
-                    //TODO - show error toast
-                    alert(xhr.responseText);
-                    return;
-                }
-                
-                var ansVotes = JSON.parse(xhr.responseText)
-                that.showVotes(ansVotes);
-            };
-            xhr.open('POST', url);
-            xhr.send();
-        });
-    });
-
     this.setUpDownVoteColor = function(elem, amount) {
         //Clear color of both triangles
         _.each(Sizzle(".triangle-base", elem.parentNode), function(elem2) {
