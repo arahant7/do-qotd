@@ -32,14 +32,14 @@
 
     <div class="grid-100 grid-parent do-content-box do-question-box">
 
-      <!-- This span comes before the question so as to mae it float to top-right instead of bottom-right -->
+      <!-- This span comes before the question so as to mae it float to top-right instead of bottom-right 
       <span style="width: 80px; height: 80px; background: #0F9D58; border-radius: 40px; display: table; float:right;">
         <span style="display:table-cell; vertical-align:middle; text-align: center; color:white;">
 	      <span>{{ data.q.nv }}</span>
 	      <small>votes</small>
 	    </span>
       </span>
-
+-->
       <span>{{ data.q.question|e }}</span>
 
     </div>
@@ -52,21 +52,24 @@
     </div><!-- Options -->
     <div class="do-item-clear">&nbsp;</div>
 
-    {% for a in data.a %}
-    <div class="grid-100 do-options-outer valign-center-outer" id="div_answer_{{a.answer_id}}">
-      <!-- Options -->
-      <div class="grid-5 mobile-grid-10 grid-parent valign-center-inner">
-	    <input class="do-options-radio" name="answer" value="{{ a.answer_id }}" type="radio" />
-        <input type="hidden" name="url" value="/polls/{{a.poll_id}}/vote/{{a.answer_id}}"/>
-      </div>
-      <div class="grid-75 mobile-grid-70 grid-parent">
-	    <span class="do-options-radio-text">{{ a.answer|e }}</span>
-      </div>
-      <div class="grid-20 mobile-grid-20 grid-parent" id="div_answer_{{a.answer_id}}_circle">
-      </div>
-    </div>
-    <div class="do-item-clear">&nbsp;</div>
-    {% endfor %}
+    <form method="POST" action="/polls/{{data.q.poll_id}}/vote">
+        {% for a in data.a %}
+        <div class="grid-100 do-options-outer valign-center-outer" id="div_answer_{{a.answer_id}}">
+          <!-- Options -->
+          <div class="grid-5 mobile-grid-10 grid-parent valign-center-inner">
+            <input class="do-options-radio" name="answer" value="{{ a.answer_id }}" type="radio" />
+            <input type="hidden" name="url" value="/polls/{{a.poll_id}}/vote/{{a.answer_id}}"/>
+          </div>
+          <div class="grid-75 mobile-grid-70 grid-parent">
+            <span class="do-options-radio-text">{{ a.answer|e }}</span>
+          </div>
+          <div class="grid-20 mobile-grid-20 grid-parent" id="div_answer_{{a.answer_id}}_circle">
+          </div>
+        </div>
+        <div class="do-item-clear">&nbsp;</div>
+        {% endfor %}
+    	<button style="padding: 9px 18px; font-size: 16px; background: #0F9D58; color: white; font-weight: bold; cursor: pointer; border-style:none;">Vote</button>
+    </form>
 
     <script type="text/template" id="tmpl_vote_result_circle">
         <span class="circle-result-outer" style="border-color: <%= color %>;">
