@@ -8,7 +8,7 @@ from datetime import timedelta
 from collections import namedtuple
 import bcrypt
 
-DB_CONN_PSYCOPG_LOCAL=os.environ['PSYCOPG_CONN_STR']
+:DB_CONN_PSYCOPG_LOCAL=os.environ['PSYCOPG_CONN_STR']
     
 SQL_GET_QUESTION = """
 SELECT *

@@ -107,6 +107,7 @@ body {
 
 .do-content-box {
   background-color:white;
+  overflow:hidden;
 }
 
 .do-bottom-align {
